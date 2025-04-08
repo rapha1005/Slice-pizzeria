@@ -1,87 +1,140 @@
 const $wrapper = document.querySelector('.pizzas-wrapper')
 const $basketAside = document.querySelector('.basket-aside')
-
+const $orderModal = document.querySelector('.order-modal')
+const $orderModalDetail = document.querySelector('.order-detail')
+const $orderModalBtn = document.querySelector('.new-order-btn')
+const $orderModalWrapper = document.querySelector('.order-modal-wrapper')
 
 let products
 
 let basket = []
 
-async function getProducts(){
-    const res = await fetch('http://10.59.122.41:3000/products')
+async function getProducts() {
+    const res = await fetch('http://10.59.122.150:3000/products')
     const data = await res.json()
 
     products = data
 
-    displayProducts()
-
-}
-
-function displayProducts(){
-    products.forEach(element => {
-        const $item = document.createElement('div')
-        $item.classList.add('pizza-item')
-
-    
-        const $img = document.createElement('img')
-        $img.classList.add('pizza-picture')
-        $img.src = element.image
-        $img.alt = element.name
-        $img.title = element.description
-
-
-        const $button = document.createElement('span')
-        $button.classList.add('add-to-cart-btn')
-        $button.setAttribute('data-id', element.id)
-        
-        const $cardImage = document.createElement('img')
-        $cardImage.src = 'images/carbon_shopping-cart-plus.svg'
-        
-
-        const $list = document.createElement('ul')
-        $list.classList.add('pizza-infos')
-        
-
-        const $pizzaName = document.createElement('li')
-        $pizzaName.classList.add('pizza-name')
-        $pizzaName.textContent = element.name
-
-        const $price = document.createElement('li')
-        $price.classList.add('pizza-price')
-        $price.textContent = "$" + element.price
-
-        $button.addEventListener('click', function(e){
-            let id = e.target.getAttribute('data-id')
-            addBasket(id)
-        })
-
-
-        $wrapper.appendChild($item)
-        $item.appendChild($img)
-        $item.appendChild($button)
-        $button.appendChild($cardImage)
-        $button.append(" Ajouter au panier")
-
-        $item.appendChild($list)
-        $list.appendChild($pizzaName)
-        $list.appendChild($price)
-
-        
-        
-
-    });
-   
-
+    products.forEach(product =>{
+        createProduct(product)
+    })
 }
 
 
+function createProduct(product) {
 
-function addBasket(id){
+    const $item = document.createElement('div')
+    $item.classList.add('pizza-item')
+
+
+    const $img = document.createElement('img')
+    $img.classList.add('pizza-picture')
+    $img.src = product.image
+    $img.alt = product.name
+    $img.title = product.description
+
+
+    const $button = document.createElement('span')
+    $button.classList.add('add-to-cart-btn')
+    $button.setAttribute('data-id', product.id)
+
+    const $cardImage = document.createElement('img')
+    $cardImage.src = 'images/carbon_shopping-cart-plus.svg'
+
+
+    const $list = document.createElement('ul')
+    $list.classList.add('pizza-infos')
+
+
+    const $pizzaName = document.createElement('li')
+    $pizzaName.classList.add('pizza-name')
+    $pizzaName.textContent = product.name
+
+    const $price = document.createElement('li')
+    $price.classList.add('pizza-price')
+    $price.textContent = "$" + product.price
+
+    $button.addEventListener('click', function (e) {
+        const id = e.target.getAttribute('data-id')
+        e.target.classList.add('hidden')
+        document.querySelector(`.added-to-basket-btn[data-id="${id}"]`).classList.remove('hidden')
+        increaseBasket(id)
+    })
+
+    const $addedToBasket = document.createElement('span')
+    $addedToBasket.classList.add('added-to-basket-btn')
+    $addedToBasket.classList.add('hidden')
+    $addedToBasket.setAttribute('data-id', product.id)
+
+
+    const $addedToBasketDecrease = document.createElement('img')
+    $addedToBasketDecrease.src = './images/Subtract Icon.svg'
+
+    const $addedToBasketText = document.createElement('p')
+    $addedToBasketText.textContent = "1"
+
+    const $addedToBasketIncrease = document.createElement('img')
+    $addedToBasketIncrease.src = "./images/Add Icon.svg"
+
+    $addedToBasketDecrease.addEventListener('click', function (e) {
+        const id = e.target.parentElement.getAttribute('data-id')
+        const text = e.target.parentElement.querySelector('p')
+        text.textContent--
+        decreaseBasket(id)
+    })
+
+
+    $addedToBasketIncrease.addEventListener('click', function (e) {
+        const id = e.target.parentElement.getAttribute('data-id')
+        const text = e.target.parentElement.querySelector('p')
+        text.textContent++
+        increaseBasket(id)
+    })
+
+
+
+    $wrapper.appendChild($item)
+    $item.appendChild($img)
+    $item.appendChild($button)
+    $item.appendChild($addedToBasket)
+    $addedToBasket.appendChild($addedToBasketDecrease)
+    $addedToBasket.appendChild($addedToBasketText)
+    $addedToBasket.appendChild($addedToBasketIncrease)
+    $button.appendChild($cardImage)
+    $button.append(" Ajouter au panier")
+    $item.appendChild($list)
+    $list.appendChild($pizzaName)
+    $list.appendChild($price)
+}
+
+
+function decreaseBasket(id) {
+    const item = basket.find(item => item.id == id)
+    console.log(item)
+
+    if (item.quantity === 1) {
+        const index = basket.indexOf(item)
+        basket.splice(index, 1)
+        document.querySelector(`.added-to-basket-btn[data-id="${id}"]`).classList.add('hidden')
+        document.querySelector(`.add-to-cart-btn[data-id="${id}"]`).classList.remove('hidden')
+    } else {
+        item.quantity--
+
+    }
+    displayBasket()
+}
+
+
+
+
+
+function increaseBasket(id) {
     const product = products.find(product => product.id === id)
 
-    const çaExisteOuPas = basket.find(item => item.id == id)
+    const productInBasket = basket.find(item => item.id == id)
 
-    if (çaExisteOuPas) {
-        çaExisteOuPas.quantity += 1
+    if (productInBasket) {
+        productInBasket.quantity += 1
     } else {
         const item = {
             name: product.name,
@@ -89,18 +142,23 @@ function addBasket(id){
             id: product.id,
             quantity: 1
         }
-        
+
         basket.push(item)
     }
 
     displayBasket()
-    
+
 }
 
-function basketRemove(id){
+
+
+function removeFromBasket(id) {
     const index = basket.indexOf(id)
 
     basket.splice(index, 1)
+
+    document.querySelector(`.added-to-basket-btn[data-id="${id}"]`).classList.add('hidden')
+    document.querySelector(`.add-to-cart-btn[data-id="${id}"]`).classList.remove('hidden')
 
     console.log(basket)
     displayBasket()
@@ -108,10 +166,10 @@ function basketRemove(id){
 }
 
 
-function displayBasket(){
+function displayBasket() {
+    let price = 0
 
-    
-    if(basket.length === 0){
+    if (basket.length === 0) {
         $basketAside.innerHTML = `
         <h2>Votre panier (0)</h2>
         <div class="empty-basket">
@@ -119,74 +177,75 @@ function displayBasket(){
           <p>Votre panier est vide...</p>
         </div>
       `
-      return
-      
-    }else{
+        return
+
+    } else {
         console.log("azrae  ")
         $basketAside.innerHTML = '<h2> Votre panier (<span class="basket-item-quantity"></span>) </h2>'
 
         const $basket = document.createElement('ul')
         $basket.classList.add('basket-products')
-    
+
         $basketAside.appendChild($basket)
-        
+
         document.querySelector('.basket-item-quantity').textContent += basket.length
 
 
 
-    basket.forEach(element => {
+        basket.forEach(product => {
+
+            price += product.price * product.quantity
+
+            const $productItem = document.createElement('li')
+            $productItem.classList.add('basket-product-item')
+            $productItem.setAttribute("data-id", product.id)
+
+            const $itemName = document.createElement('span')
+            $itemName.classList.add('basket-product-item-name')
+            $itemName.textContent = product.name
+
+            const $itemDetails = document.createElement('span')
+            $itemDetails.classList.add('basket-product-details')
+
+            const $itemQuantity = document.createElement('span')
+            $itemQuantity.classList.add('basket-product-details-quantity')
+            $itemQuantity.textContent = product.quantity
+
+            const $itemPrice = document.createElement('span')
+            $itemPrice.classList.add('basket-product-details-unit-price')
+            $itemPrice.textContent = "@ $" + product.price
+
+            const $itemTotalPrice = document.createElement('span')
+            $itemTotalPrice.classList.add('basket-product-details-total-price')
+            $itemTotalPrice.textContent = "$" + product.price * product.quantity
+
+            const $removeItem = document.createElement('img')
+            $removeItem.classList.add('basket-product-remove-icon')
+            $removeItem.src = "./images/remove-icon.svg"
 
 
-        const $productItem = document.createElement('li')
-        $productItem.classList.add('basket-product-item')
-        $productItem.setAttribute("data-id", element.id)
-
-        const $itemName = document.createElement('span')
-        $itemName.classList.add('basket-product-item-name')
-        $itemName.textContent = element.name
-
-        const $itemDetails = document.createElement('span')
-        $itemDetails.classList.add('basket-product-details')
-        
-        const $itemQuantity = document.createElement('span')
-        $itemQuantity.classList.add('basket-product-details-quantity')
-        $itemQuantity.textContent = element.quantity
-
-        const $itemPrice = document.createElement('span')
-        $itemPrice.classList.add('basket-product-details-unit-price')
-        $itemPrice.textContent = "@ $" + element.price
-
-        const $itemTotalPrice = document.createElement('span')
-        $itemTotalPrice.classList.add('basket-product-details-total-price')
-        $itemTotalPrice.textContent = "$" + element.price * element.quantity
-        
-        const $removeItem = document.createElement('img')
-        $removeItem.classList.add('basket-product-remove-icon')
-        $removeItem.src = "./images/remove-icon.svg"
-
-
-        $removeItem.addEventListener("click", function(e){
-            const id = e.target.parentElement.getAttribute('data-id')
-            basketRemove(id)
-        })
-
-        
-
-        $basket.appendChild($productItem)
-        $productItem.appendChild($itemName)
-        $productItem.appendChild($itemDetails)
-        $itemDetails.appendChild($itemQuantity)
-        $itemDetails.appendChild($itemPrice)
-        $itemDetails.appendChild($itemTotalPrice)
-        $productItem.appendChild($removeItem)
-
-        
-
-    });
+            $removeItem.addEventListener("click", function (e) {
+                const id = e.target.parentElement.getAttribute('data-id')
+                removeFromBasket(id)
+            })
 
 
 
-    const $totalOrder = document.createElement('p')
+            $basket.appendChild($productItem)
+            $productItem.appendChild($itemName)
+            $productItem.appendChild($itemDetails)
+            $itemDetails.appendChild($itemQuantity)
+            $itemDetails.appendChild($itemPrice)
+            $itemDetails.appendChild($itemTotalPrice)
+            $productItem.appendChild($removeItem)
+
+
+
+        });
+
+
+
+        const $totalOrder = document.createElement('p')
         $totalOrder.classList.add('total-order')
 
         const $title = document.createElement('span')
@@ -195,16 +254,124 @@ function displayBasket(){
 
         const $totalPrice = document.createElement('span')
         $totalPrice.classList.add('total-order-price')
-        $totalPrice.textContent = 
+        $totalPrice.textContent = "$" + price
+
+        const $deliveryInfo = document.createElement('p')
+        $deliveryInfo.classList.add('delivery-info')
+        $deliveryInfo.innerHTML = ' This is a <span>carbon neutral</span> delivery '
+
+
+        const $confirmOrder = document.createElement('a')
+        $confirmOrder.classList.add('confirm-order-btn')
+        $confirmOrder.textContent = "Confirm order"
+
+        $confirmOrder.addEventListener('click', function () {
+            confirmOrder()
+        })
 
         $basket.appendChild($totalOrder)
-        $totalOrder.appendChild($totalOrder)
+        $basket.appendChild($deliveryInfo)
+        $basket.appendChild($confirmOrder)
+        $totalOrder.appendChild($title)
         $totalOrder.appendChild($totalPrice)
     }
 }
 
 
+async function confirmOrder() {
+    const reqBody = basket.map(item => {
+        return {
+            uuid: item.id,
+            quantity: item.quantity
+        }
+    })
 
+    const req = await fetch('http://10.59.122.150:3000/orders', {
+        "method": "POST",
+        headers: {
+            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InIuc2FvdWxlQGVkZW5zY2hvb2wuZnIiLCJzdWIiOiI2OWI4ZDE2MC04ZjMzLTQ1YTctOGVhMi05MGQyM2JkNjk3ZGYiLCJpYXQiOjE3NDQxMTcxOTcsImV4cCI6MTc0NDIwMzU5N30.DeDEC18w5sHK2DvQCmJiZYP9F2QjvF8NpIwKxkCCVLA',
+
+            'Content-Type': 'application/json'
+        },
+
+        body: JSON.stringify({
+            products: reqBody
+        })
+    })
+    const res = await req.json()
+
+    displayOrderModal(res.products)
+}
+
+
+function displayOrderModal(order) {
+    $orderModalWrapper.classList.remove('hidden')
+
+    let price = 0
+    order.forEach(item => {
+        price += item.product.price * item.quantity
+
+
+        const $orderDetailItem = document.createElement('li')
+        $orderDetailItem.classList.add('order-detail-product-item')
+
+
+        const $orderItemImage = document.createElement('img')
+        $orderItemImage.classList.add('order-detail-product-image')
+        $orderItemImage.src = item.product.image
+
+
+        const $orderItemTitle = document.createElement('span')
+        $orderItemTitle.classList.add('order-detail-product-name')
+        $orderItemTitle.textContent = item.product.name
+
+        const $orderItemQuantity = document.createElement('span')
+        $orderItemQuantity.classList.add('order-detail-product-quantity')
+        $orderItemQuantity.textContent = item.quantity + "x"
+
+        const $orderItemUnitPrice = document.createElement('span')
+        $orderItemUnitPrice.classList.add('order-detail-product-unit-price')
+        $orderItemUnitPrice.textContent = "@ $" + item.product.price
+
+        const $orderItemTotalPrice = document.createElement('span')
+        $orderItemTotalPrice.classList.add('order-detail-product-total-price')
+        $orderItemTotalPrice.textContent = "$" + item.product.price * item.quantity
+
+
+        $orderModalDetail.appendChild($orderDetailItem)
+        $orderDetailItem.appendChild($orderItemImage)
+        $orderDetailItem.appendChild($orderItemTitle)
+        $orderDetailItem.appendChild($orderItemQuantity)
+        $orderDetailItem.appendChild($orderItemUnitPrice)
+        $orderDetailItem.appendChild($orderItemTotalPrice)
+
+    })
+
+    const $totalOrder = document.createElement('li')
+    $totalOrder.classList.add('order-detail-total-price')
+
+
+    const $totalOrderTitle = document.createElement('span')
+    $totalOrderTitle.classList.add('total-order-title')
+    $totalOrderTitle.textContent = "Order total"
+
+
+    const $totalOrderPrice = document.createElement('span')
+    $totalOrderPrice.classList.add('total-order-price')
+    $totalOrderPrice.textContent = "$" + price
+
+
+
+    $orderModalDetail.appendChild($totalOrder)
+    $totalOrder.appendChild($totalOrderTitle)
+    $totalOrder.appendChild($totalOrderPrice)
+
+}
+
+
+$orderModalBtn.addEventListener('click', function () {
+    window.location.reload()
+})
 
 
 getProducts()
