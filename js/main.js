@@ -5,136 +5,136 @@ const $orderModalDetail = document.querySelector('.order-detail')
 const $orderModalBtn = document.querySelector('.new-order-btn')
 const $orderModalWrapper = document.querySelector('.order-modal-wrapper')
 
-let products
+
 
 let basket = []
 
 async function getProducts() {
-    const res = await fetch('http://10.59.122.150:3000/products')
+    const res = await fetch('http://10.59.122.27:3000/products')
     const data = await res.json()
 
-    products = data
 
-    products.forEach(product =>{
+    data.forEach(product =>{
         createProduct(product)
     })
 }
 
 
-function createProduct(product) {
+    function createProduct(product) {
 
-    const $item = document.createElement('div')
-    $item.classList.add('pizza-item')
-
-
-    const $img = document.createElement('img')
-    $img.classList.add('pizza-picture')
-    $img.src = product.image
-    $img.alt = product.name
-    $img.title = product.description
+        const $item = document.createElement('div')
+        $item.classList.add('pizza-item')
 
 
-    const $button = document.createElement('span')
-    $button.classList.add('add-to-cart-btn')
-    $button.setAttribute('data-id', product.id)
-
-    const $cardImage = document.createElement('img')
-    $cardImage.src = 'images/carbon_shopping-cart-plus.svg'
-
-
-    const $list = document.createElement('ul')
-    $list.classList.add('pizza-infos')
+        const $img = document.createElement('img')
+        $img.classList.add('pizza-picture')
+        $img.src = product.image
+        $img.alt = product.name
+        $img.title = product.description
 
 
-    const $pizzaName = document.createElement('li')
-    $pizzaName.classList.add('pizza-name')
-    $pizzaName.textContent = product.name
+        const $button = document.createElement('span')
+        $button.classList.add('add-to-cart-btn')
+        $button.setAttribute('data-id', product.id)
 
-    const $price = document.createElement('li')
-    $price.classList.add('pizza-price')
-    $price.textContent = "$" + product.price
-
-    $button.addEventListener('click', function (e) {
-        const id = e.target.getAttribute('data-id')
-        e.target.classList.add('hidden')
-        document.querySelector(`.added-to-basket-btn[data-id="${id}"]`).classList.remove('hidden')
-        increaseBasket(id)
-    })
-
-    const $addedToBasket = document.createElement('span')
-    $addedToBasket.classList.add('added-to-basket-btn')
-    $addedToBasket.classList.add('hidden')
-    $addedToBasket.setAttribute('data-id', product.id)
+        const $cardImage = document.createElement('img')
+        $cardImage.src = 'images/carbon_shopping-cart-plus.svg'
 
 
-    const $addedToBasketDecrease = document.createElement('img')
-    $addedToBasketDecrease.src = './images/Subtract Icon.svg'
-
-    const $addedToBasketText = document.createElement('p')
-    $addedToBasketText.textContent = "1"
-
-    const $addedToBasketIncrease = document.createElement('img')
-    $addedToBasketIncrease.src = "./images/Add Icon.svg"
-
-    $addedToBasketDecrease.addEventListener('click', function (e) {
-        const id = e.target.parentElement.getAttribute('data-id')
-        const text = e.target.parentElement.querySelector('p')
-        text.textContent--
-        decreaseBasket(id)
-    })
+        const $list = document.createElement('ul')
+        $list.classList.add('pizza-infos')
 
 
-    $addedToBasketIncrease.addEventListener('click', function (e) {
-        const id = e.target.parentElement.getAttribute('data-id')
-        const text = e.target.parentElement.querySelector('p')
-        text.textContent++
-        increaseBasket(id)
-    })
+        const $pizzaName = document.createElement('li')
+        $pizzaName.classList.add('pizza-name')
+        $pizzaName.textContent = product.name
+
+        const $price = document.createElement('li')
+        $price.classList.add('pizza-price')
+        $price.textContent = "$" + product.price
+
+        $button.addEventListener('click', function (e) {
+            const id = e.target.getAttribute('data-id')
+            e.target.classList.add('hidden')
+            document.querySelector(`.added-to-basket-btn[data-id="${id}"]`).classList.remove('hidden')
+            increaseBasket(product)
+        })
+
+        const $addedToBasket = document.createElement('span')
+        $addedToBasket.classList.add('added-to-basket-btn')
+        $addedToBasket.classList.add('hidden')
+        $addedToBasket.setAttribute('data-id', product.id)
+
+
+        const $addedToBasketDecrease = document.createElement('img')
+        $addedToBasketDecrease.src = './images/Subtract Icon.svg'
+
+        const $addedToBasketText = document.createElement('p')
+        $addedToBasketText.textContent = "1"
+
+        const $addedToBasketIncrease = document.createElement('img')
+        $addedToBasketIncrease.src = "./images/Add Icon.svg"
+
+        $addedToBasketDecrease.addEventListener('click', function (e) {
+            const id = e.target.parentElement.getAttribute('data-id')
+            const text = e.target.parentElement.querySelector('p')
+            text.textContent--
+            decreaseBasket(product)
+        })
+
+
+        $addedToBasketIncrease.addEventListener('click', function (e) {
+            const id = e.target.parentElement.getAttribute('data-id')
+            const text = e.target.parentElement.querySelector('p')
+            text.textContent++
+            increaseBasket(product)
+        })
 
 
 
-    $wrapper.appendChild($item)
-    $item.appendChild($img)
-    $item.appendChild($button)
-    $item.appendChild($addedToBasket)
-    $addedToBasket.appendChild($addedToBasketDecrease)
-    $addedToBasket.appendChild($addedToBasketText)
-    $addedToBasket.appendChild($addedToBasketIncrease)
-    $button.appendChild($cardImage)
-    $button.append(" Ajouter au panier")
-    $item.appendChild($list)
-    $list.appendChild($pizzaName)
-    $list.appendChild($price)
-}
+        $wrapper.appendChild($item)
+        $item.appendChild($img)
+        $item.appendChild($button)
+        $item.appendChild($addedToBasket)
+        $addedToBasket.appendChild($addedToBasketDecrease)
+        $addedToBasket.appendChild($addedToBasketText)
+        $addedToBasket.appendChild($addedToBasketIncrease)
+        $button.appendChild($cardImage)
+        $button.append(" Ajouter au panier")
+        $item.appendChild($list)
+        $list.appendChild($pizzaName)
+        $list.appendChild($price)
+    }
 
 
-function decreaseBasket(id) {
-    const item = basket.find(item => item.id == id)
-    console.log(item)
+    function decreaseBasket(product) {
+        const item = basket.find(item => item.id == product.id)
+        console.log(item)
 
     if (item.quantity === 1) {
         const index = basket.indexOf(item)
         basket.splice(index, 1)
-        document.querySelector(`.added-to-basket-btn[data-id="${id}"]`).classList.add('hidden')
-        document.querySelector(`.add-to-cart-btn[data-id="${id}"]`).classList.remove('hidden')
+        document.querySelector(`.added-to-basket-btn[data-id="${product.id}"]`).classList.add('hidden')
+        document.querySelector(`.added-to-basket-btn[data-id="${product.id}"] p`).textContent = 1
+        document.querySelector(`.add-to-cart-btn[data-id="${product.id}"]`).classList.remove('hidden')
     } else {
         item.quantity--
 
     }
-    displayBasket()
+    displayBasket() 
 }
 
 
 
 
 
-function increaseBasket(id) {
-    const product = products.find(product => product.id === id)
+function increaseBasket(product) {
 
-    const productInBasket = basket.find(item => item.id == id)
 
-    if (productInBasket) {
-        productInBasket.quantity += 1
+    const item = basket.find(item => item.id == product.id)
+
+    if (item) {
+        item.quantity += 1
     } else {
         const item = {
             name: product.name,
@@ -279,6 +279,7 @@ function displayBasket() {
 
 
 async function confirmOrder() {
+    const access_token = localStorage.getItem('access_token')
     const reqBody = basket.map(item => {
         return {
             uuid: item.id,
@@ -286,11 +287,10 @@ async function confirmOrder() {
         }
     })
 
-    const req = await fetch('http://10.59.122.150:3000/orders', {
+    const req = await fetch('http://10.59.122.27:3000/orders', {
         "method": "POST",
         headers: {
-            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InIuc2FvdWxlQGVkZW5zY2hvb2wuZnIiLCJzdWIiOiI2OWI4ZDE2MC04ZjMzLTQ1YTctOGVhMi05MGQyM2JkNjk3ZGYiLCJpYXQiOjE3NDQxMTcxOTcsImV4cCI6MTc0NDIwMzU5N30.DeDEC18w5sHK2DvQCmJiZYP9F2QjvF8NpIwKxkCCVLA',
-
+            'Authorization': access_token,
             'Content-Type': 'application/json'
         },
 
@@ -299,6 +299,12 @@ async function confirmOrder() {
         })
     })
     const res = await req.json()
+    
+        if (!res || !res.products) {
+            console.error('Invalid response from API:', res);
+            return;
+        }
+
 
     displayOrderModal(res.products)
 }
